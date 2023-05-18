@@ -189,29 +189,29 @@ void Supla::Protocol::EspMqtt::onInit() {
   Supla::Protocol::Mqtt::onInit();
 
   esp_mqtt_client_config_t mqttCfg = {};
-  mqttCfg.broker.address.hostname = server;
-  mqttCfg.broker.address.port = port;
+  mqttCfg.host = server;
+  mqttCfg.port = port;
   if (useAuth) {
-    mqttCfg.credentials.username = user;
-    mqttCfg.credentials.authentication.password = password;
+    mqttCfg.username = user;
+    mqttCfg.password = password;
   }
   if (useTls) {
-    mqttCfg.broker.address.transport = MQTT_TRANSPORT_OVER_SSL;
+    mqttCfg.transport = MQTT_TRANSPORT_OVER_SSL;
   } else {
-    mqttCfg.broker.address.transport = MQTT_TRANSPORT_OVER_TCP;
+    mqttCfg.transport = MQTT_TRANSPORT_OVER_TCP;
   }
-  mqttCfg.session.keepalive = sdc->getActivityTimeout();
+  mqttCfg.keepalive = sdc->getActivityTimeout();
 
   MqttTopic lastWill(prefix);
   lastWill = lastWill / "state" / "connected";
-  mqttCfg.session.last_will.topic = lastWill.c_str();
-  mqttCfg.session.last_will.msg = "false";
-  mqttCfg.session.last_will.retain = 1;
+  mqttCfg.lwt_topic = lastWill.c_str();
+  mqttCfg.lwt_msg = "false";
+  mqttCfg.lwt_retain = 1;
 
   char clientId[MQTT_CLIENTID_MAX_SIZE] = {};
   generateClientId(clientId);
 
-  mqttCfg.credentials.client_id = clientId;
+  mqttCfg.client_id = clientId;
 
   client = esp_mqtt_client_init(&mqttCfg);
   esp_mqtt_client_register_event(
